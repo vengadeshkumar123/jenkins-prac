@@ -2,6 +2,11 @@ pipeline {
 
     agent any
 
+    environment {
+        APP_NAME = 'Jenkins Practice App'
+        ENVIRONMENT = 'development'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -12,31 +17,33 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building application...'
+                echo "Building ${APP_NAME}"
+                echo "Environment: ${ENVIRONMENT}"
                 sh 'chmod +x app.sh'
             }
         }
 
-      stage('Test') {
-    steps {
-        echo 'Testing application...'
-        sh './app.sh'
- 
+        stage('Test') {
+            steps {
+                echo "Testing ${APP_NAME}"
+                echo "Environment: ${ENVIRONMENT}"
+                sh './app.sh'
+            }
         }
     }
 
     post {
 
         success {
-            echo 'Pipeline completed successfully!'
+            echo "Pipeline for ${APP_NAME} completed successfully!"
         }
 
         failure {
-            echo 'Pipeline failed!'
+            echo "Pipeline for ${APP_NAME} failed!"
         }
 
         always {
-            echo 'Pipeline execution completed.'
+            echo "Execution completed in ${ENVIRONMENT} environment."
         }
     }
 }
