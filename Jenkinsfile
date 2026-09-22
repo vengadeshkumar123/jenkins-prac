@@ -37,20 +37,53 @@ pipeline {
                 sh './app.sh'
             }
         }
+
+        stage('Development Check') {
+            when {
+                expression {
+                    params.DEPLOY_ENV == 'development'
+                }
+            }
+            steps {
+                echo 'Running development-specific stage'
+            }
+        }
+
+        stage('Staging Check') {
+            when {
+                expression {
+                    params.DEPLOY_ENV == 'staging'
+                }
+            }
+            steps {
+                echo 'Running staging-specific stage'
+            }
+        }
+
+        stage('Production Check') {
+            when {
+                expression {
+                    params.DEPLOY_ENV == 'production'
+                }
+            }
+            steps {
+                echo 'Running production-specific stage'
+            }
+        }
     }
 
     post {
 
         success {
-            echo "Pipeline completed successfully!"
+            echo 'Pipeline completed successfully!'
         }
 
         failure {
-            echo "Pipeline failed!"
+            echo 'Pipeline failed!'
         }
 
         always {
-            echo "Execution completed."
+            echo 'Execution completed.'
         }
     }
 }
