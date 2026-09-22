@@ -1,10 +1,26 @@
 pipeline {
+
     agent any
 
     stages {
-        stage('Hello') {
+
+        stage('Checkout') {
             steps {
-                echo 'Hello from Jenkins!'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building application...'
+                sh 'chmod +x app.sh'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing application...'
+                sh './app.sh'
             }
         }
     }
