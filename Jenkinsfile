@@ -71,13 +71,14 @@ pipeline {
                     params.DEPLOY_ENV == 'production'
                 }
             }
-            stage('Manual Approval') {
-    steps {
-        input message: 'Do you want to continue?', ok: 'Proceed'
-    }
-}
             steps {
                 echo 'Running production-specific stage'
+            }
+        }
+
+        stage('Manual Approval') {
+            steps {
+                input message: 'Do you want to continue?', ok: 'Proceed'
             }
         }
     }
