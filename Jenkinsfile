@@ -21,9 +21,7 @@ pipeline {
     steps {
         echo 'Testing application...'
         sh './app.sh'
-        sh 'exit 1'
-    }
-}
+ 
         }
     }
 
