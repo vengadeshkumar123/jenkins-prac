@@ -2,9 +2,16 @@ pipeline {
 
     agent any
 
+    parameters {
+        choice(
+            name: 'DEPLOY_ENV',
+            choices: ['development', 'staging', 'production'],
+            description: 'Select the environment'
+        )
+    }
+
     environment {
         APP_NAME = 'Jenkins Practice App'
-        ENVIRONMENT = 'development'
     }
 
     stages {
@@ -18,7 +25,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building ${APP_NAME}"
-                echo "Environment: ${ENVIRONMENT}"
+                echo "Environment: ${params.DEPLOY_ENV}"
                 sh 'chmod +x app.sh'
             }
         }
@@ -26,7 +33,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Testing ${APP_NAME}"
-                echo "Environment: ${ENVIRONMENT}"
+                echo "Environment: ${params.DEPLOY_ENV}"
                 sh './app.sh'
             }
         }
@@ -35,15 +42,15 @@ pipeline {
     post {
 
         success {
-            echo "Pipeline for ${APP_NAME} completed successfully!"
+            echo "Pipeline completed successfully!"
         }
 
         failure {
-            echo "Pipeline for ${APP_NAME} failed!"
+            echo "Pipeline failed!"
         }
 
         always {
-            echo "Execution completed in ${ENVIRONMENT} environment."
+            echo "Execution completed."
         }
     }
 }
