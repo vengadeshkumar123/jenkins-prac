@@ -17,11 +17,13 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                echo 'Testing application...'
-                sh './app.sh'
-            }
+      stage('Test') {
+    steps {
+        echo 'Testing application...'
+        sh './app.sh'
+        sh 'exit 1'
+    }
+}
         }
     }
 
