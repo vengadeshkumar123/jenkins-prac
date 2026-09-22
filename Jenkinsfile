@@ -42,7 +42,32 @@ pipeline {
                 sh './app.sh'
             }
         }
+stage('Parallel Checks') {
 
+    parallel {
+
+        stage('Unit Test') {
+            steps {
+                echo 'Running Unit Tests...'
+                sh 'echo Unit Test Completed'
+            }
+        }
+
+        stage('Code Check') {
+            steps {
+                echo 'Running Code Check...'
+                sh 'echo Code Check Completed'
+            }
+        }
+
+        stage('Validation') {
+            steps {
+                echo 'Running Validation...'
+                sh 'echo Validation Completed'
+            }
+        }
+    }
+}
         stage('Development Check') {
             when {
                 expression {
