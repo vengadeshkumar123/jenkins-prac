@@ -2,23 +2,6 @@ pipeline {
 
     agent any
 
-    parameters {
-        choice(
-            name: 'DEPLOY_ENV',
-            choices: ['development', 'staging', 'production'],
-            description: 'Select the environment'
-        )
-    }
-
-    environment {
-        APP_NAME = 'Jenkins Practice App'
-    }
-
-    options {
-        timeout(time: 5, unit: 'MINUTES')
-        disableConcurrentBuilds()
-    }
-
     stages {
 
         stage('Checkout') {
@@ -27,83 +10,37 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Docker Build & Push') {
             steps {
-                echo "Building ${APP_NAME}"
-                echo "Environment: ${params.DEPLOY_ENV}"
-                sh 'chmod +x app.sh'
-            }
-        }
 
-        stage('Test') {
-            steps {
-                echo "Testing ${APP_NAME}"
-                echo "Environment: ${params.DEPLOY_ENV}"
-                sh './app.sh'
-            }
-        }
-stage('Parallel Checks') {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_PASSWORD'
+                    )
+                ]) {
 
-    parallel {
+                    sh '''
+                        echo "$DOCKERHUB_PASSWORD" | docker login \
+                            -u "$DOCKERHUB_USERNAME" \
+                            --password-stdin
 
-        stage('Unit Test') {
-            steps {
-                echo 'Running Unit Tests...'
-                sh 'echo Unit Test Completed'
-            }
-        }
+                        docker build \
+                            -t "$DOCKERHUB_USERNAME/jenkins-practice:latest" .
 
-        stage('Code Check') {
-            steps {
-                echo 'Running Code Check...'
-                sh 'echo Code Check Completed'
-            }
-        }
+                        docker push \
+                            "$DOCKERHUB_USERNAME/jenkins-practice:latest"
 
-        stage('Validation') {
-            steps {
-                echo 'Running Validation...'
-                sh 'echo Validation Completed'
-            }
-        }
-    }
-}
-        stage('Development Check') {
-            when {
-                expression {
-                    params.DEPLOY_ENV == 'development'
+                        docker logout
+                    '''
                 }
             }
-            steps {
-                echo 'Running development-specific stage'
-            }
         }
 
-        stage('Staging Check') {
-            when {
-                expression {
-                    params.DEPLOY_ENV == 'staging'
-                }
-            }
+        stage('Deploy to EC2') {
             steps {
-                echo 'Running staging-specific stage'
-            }
-        }
-
-        stage('Production Check') {
-            when {
-                expression {
-                    params.DEPLOY_ENV == 'production'
-                }
-            }
-            steps {
-                echo 'Running production-specific stage'
-            }
-        }
-
-        stage('Manual Approval') {
-            steps {
-                input message: 'Do you want to continue?', ok: 'Proceed'
+                echo 'EC2 deployment will be added next'
             }
         }
     }
@@ -111,15 +48,15 @@ stage('Parallel Checks') {
     post {
 
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'CI/CD pipeline completed successfully!'
         }
 
         failure {
-            echo 'Pipeline failed!'
+            echo 'CI/CD pipeline failed!'
         }
 
         always {
-            echo 'Execution completed.'
+            echo 'Pipeline execution completed.'
         }
     }
 }
