@@ -34,7 +34,19 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                echo 'EC2 deployment will be added next'
+
+                sh '''
+                    aws ssm send-command \
+                        --region ap-south-1 \
+                        --document-name "AWS-RunShellScript" \
+                        --targets "Key=InstanceIds,Values=i-0ef44a9c329b12324" \
+                        --parameters 'commands=[
+                            "docker pull vengadeshkumar/jenkins-practice:latest",
+                            "docker stop jenkins-practice || true",
+                            "docker rm jenkins-practice || true",
+                            "docker run -d --name jenkins-practice -p 80:80 vengadeshkumar/jenkins-practice:latest"
+                        ]'
+                '''
             }
         }
     }
@@ -42,11 +54,11 @@ pipeline {
     post {
 
         success {
-            echo 'CI/CD pipeline completed successfully!'
+            echo 'CI/CD deployment completed successfully!'
         }
 
         failure {
-            echo 'CI/CD pipeline failed!'
+            echo 'CI/CD deployment failed!'
         }
 
         always {
